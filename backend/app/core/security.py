@@ -1,12 +1,12 @@
-from datetime import UTC, datetime, timedelta
 import hashlib
 import secrets
-from typing import Any
 import uuid
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
+import jwt
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-import jwt
 
 from app.core.config import get_settings
 

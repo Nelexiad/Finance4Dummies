@@ -1,7 +1,7 @@
+import uuid
 from datetime import date, datetime
 from decimal import Decimal
 from enum import StrEnum
-import uuid
 
 from sqlalchemy import (
     Boolean,
@@ -114,7 +114,8 @@ class RecurringRule(UUIDPrimaryKeyMixin, TimestampMixin, Base):
             name="day_of_week_range",
         ),
         CheckConstraint(
-            "(rule_type != 'TRANSFER') OR (target_account_id IS NOT NULL AND target_account_id != account_id)",
+            "(rule_type != 'TRANSFER') "
+            "OR (target_account_id IS NOT NULL AND target_account_id != account_id)",
             name="transfer_requires_distinct_target",
         ),
     )

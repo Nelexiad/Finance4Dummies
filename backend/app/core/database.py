@@ -1,7 +1,8 @@
+import uuid
 from collections.abc import AsyncGenerator
 from datetime import datetime
 from decimal import Decimal
-import uuid
+from typing import Any, ClassVar
 
 from sqlalchemy import DateTime, MetaData, Numeric, func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -34,7 +35,7 @@ TaxRateValue = Numeric(5, 4, asdecimal=True)
 
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
-    type_annotation_map = {
+    type_annotation_map: ClassVar[dict[type[Any], Any]] = {
         uuid.UUID: PG_UUID(as_uuid=True),
         datetime: DateTime(timezone=True),
         Decimal: MoneyAmount,

@@ -1,7 +1,7 @@
+import uuid
 from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
-import uuid
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey, String
 from sqlalchemy import Enum as SAEnum

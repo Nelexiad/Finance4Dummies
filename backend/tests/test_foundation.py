@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-import app.modules  # noqa: F401
+import app.modules
 from app.core.database import Base
 from app.core.ids import new_uuid7
 from app.core.security import (

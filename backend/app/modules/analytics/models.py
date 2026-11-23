@@ -1,6 +1,6 @@
+import uuid
 from datetime import date, datetime
 from decimal import Decimal
-import uuid
 
 from sqlalchemy import Date, DateTime, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID

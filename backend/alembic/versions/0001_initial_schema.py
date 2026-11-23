@@ -7,8 +7,8 @@ Create Date: 2026-11-23 15:30:00
 
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision: str = "0001_initial_schema"
@@ -230,7 +230,10 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.CheckConstraint("amount > 0", name="ck_recurring_rules_amount_positive"),
-        sa.CheckConstraint("interval_count >= 1", name="ck_recurring_rules_interval_count_positive"),
+        sa.CheckConstraint(
+            "interval_count >= 1",
+            name="ck_recurring_rules_interval_count_positive",
+        ),
         sa.CheckConstraint(
             "day_of_month IS NULL OR (day_of_month >= 1 AND day_of_month <= 31)",
             name="ck_recurring_rules_day_of_month_range",
@@ -244,7 +247,8 @@ def upgrade() -> None:
             name="ck_recurring_rules_day_of_week_range",
         ),
         sa.CheckConstraint(
-            "(rule_type != 'TRANSFER') OR (target_account_id IS NOT NULL AND target_account_id != account_id)",
+            "(rule_type != 'TRANSFER') "
+            "OR (target_account_id IS NOT NULL AND target_account_id != account_id)",
             name="ck_recurring_rules_transfer_requires_distinct_target",
         ),
         sa.ForeignKeyConstraint(
@@ -574,7 +578,11 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name="pk_pac_plans"),
     )
-    op.create_index("ix_pac_plans_user_status_next", "pac_plans", ["user_id", "status", "next_run_date"])
+    op.create_index(
+        "ix_pac_plans_user_status_next",
+        "pac_plans",
+        ["user_id", "status", "next_run_date"],
+    )
 
     op.create_table(
         "portfolio_transactions",
@@ -607,11 +615,20 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.CheckConstraint("quantity >= 0", name="ck_portfolio_transactions_quantity_non_negative"),
-        sa.CheckConstraint("unit_price >= 0", name="ck_portfolio_transactions_unit_price_non_negative"),
+        sa.CheckConstraint(
+            "quantity >= 0",
+            name="ck_portfolio_transactions_quantity_non_negative",
+        ),
+        sa.CheckConstraint(
+            "unit_price >= 0",
+            name="ck_portfolio_transactions_unit_price_non_negative",
+        ),
         sa.CheckConstraint("fees >= 0", name="ck_portfolio_transactions_fees_non_negative"),
         sa.CheckConstraint("taxes >= 0", name="ck_portfolio_transactions_taxes_non_negative"),
-        sa.CheckConstraint("fx_rate_to_base > 0", name="ck_portfolio_transactions_fx_rate_positive"),
+        sa.CheckConstraint(
+            "fx_rate_to_base > 0",
+            name="ck_portfolio_transactions_fx_rate_positive",
+        ),
         sa.ForeignKeyConstraint(
             ["account_id"],
             ["accounts.id"],
@@ -627,7 +644,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["linked_cash_transaction_id"],
             ["cash_transactions.id"],
-            name="fk_portfolio_transactions_linked_cash_transaction_id_cash_transactions",
+            name="fk_portfolio_tx_linked_cash_tx",
             ondelete="SET NULL",
         ),
         sa.ForeignKeyConstraint(
@@ -684,7 +701,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["portfolio_transaction_id"],
             ["portfolio_transactions.id"],
-            name="fk_pac_executions_portfolio_transaction_id_portfolio_transactions",
+            name="fk_pac_executions_portfolio_tx",
             ondelete="SET NULL",
         ),
         sa.PrimaryKeyConstraint("id", name="pk_pac_executions"),
@@ -711,7 +728,12 @@ def upgrade() -> None:
             name="fk_market_prices_instrument_id_instruments",
             ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("instrument_id", "interval", "recorded_at", name="pk_market_prices"),
+        sa.PrimaryKeyConstraint(
+            "instrument_id",
+            "interval",
+            "recorded_at",
+            name="pk_market_prices",
+        ),
     )
     op.execute(
         "SELECT create_hypertable('market_prices', 'recorded_at', if_not_exists => TRUE);"
@@ -724,7 +746,12 @@ def upgrade() -> None:
         sa.Column("recorded_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("rate", sa.Numeric(precision=18, scale=8), nullable=False),
         sa.Column("source", sa.String(length=32), nullable=False),
-        sa.PrimaryKeyConstraint("base_currency", "quote_currency", "recorded_at", name="pk_fx_rates"),
+        sa.PrimaryKeyConstraint(
+            "base_currency",
+            "quote_currency",
+            "recorded_at",
+            name="pk_fx_rates",
+        ),
     )
     op.execute("SELECT create_hypertable('fx_rates', 'recorded_at', if_not_exists => TRUE);")
 
@@ -765,7 +792,8 @@ def upgrade() -> None:
         ),
     )
     op.execute(
-        "SELECT create_hypertable('portfolio_daily_snapshots', 'snapshot_date', if_not_exists => TRUE);"
+        "SELECT create_hypertable("
+        "'portfolio_daily_snapshots', 'snapshot_date', if_not_exists => TRUE);"
     )
 
 

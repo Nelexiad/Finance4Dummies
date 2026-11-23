@@ -1,7 +1,7 @@
+import uuid
 from datetime import date, datetime
 from decimal import Decimal
 from enum import StrEnum
-import uuid
 
 from sqlalchemy import (
     Boolean,
@@ -138,7 +138,10 @@ class BondDetail(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint("face_value > 0", name="face_value_positive"),
         CheckConstraint("coupon_rate >= 0", name="coupon_rate_non_negative"),
-        CheckConstraint("withholding_tax_rate >= 0 AND withholding_tax_rate <= 1", name="tax_range"),
+        CheckConstraint(
+            "withholding_tax_rate >= 0 AND withholding_tax_rate <= 1",
+            name="tax_range",
+        ),
     )
 
     instrument_id: Mapped[uuid.UUID] = mapped_column(
@@ -278,7 +281,11 @@ class PortfolioTransaction(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     linked_cash_transaction_id: Mapped[uuid.UUID | None] = mapped_column(
         PG_UUID(as_uuid=True),
-        ForeignKey("cash_transactions.id", ondelete="SET NULL"),
+        ForeignKey(
+            "cash_transactions.id",
+            name="fk_portfolio_tx_linked_cash_tx",
+            ondelete="SET NULL",
+        ),
         nullable=True,
     )
     transaction_type: Mapped[PortfolioTransactionType] = mapped_column(
@@ -333,7 +340,11 @@ class PacExecution(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     portfolio_transaction_id: Mapped[uuid.UUID | None] = mapped_column(
         PG_UUID(as_uuid=True),
-        ForeignKey("portfolio_transactions.id", ondelete="SET NULL"),
+        ForeignKey(
+            "portfolio_transactions.id",
+            name="fk_pac_executions_portfolio_tx",
+            ondelete="SET NULL",
+        ),
         nullable=True,
     )
     executed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
